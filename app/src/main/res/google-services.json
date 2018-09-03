@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "856394085028",
+    "firebase_url": "https://tracko-c0cdd.firebaseio.com",
+    "project_id": "tracko-c0cdd",
+    "storage_bucket": "tracko-c0cdd.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:856394085028:android:5c4440d7d7633767",
+        "android_client_info": {
+          "package_name": "com.example.maruf.tracko"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "856394085028-hqpeb9ggl17iv4og656okmvjkm1vg4qo.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC52TWfbvoozyLGh0mxe0ClkhcDH4oqmDQ"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

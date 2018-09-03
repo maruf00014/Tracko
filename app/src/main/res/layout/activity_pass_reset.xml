@@ -30,23 +30,22 @@
     <LinearLayout
         android:id="@+id/linearLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
         android:layout_marginBottom="50dp"
         android:orientation="vertical"
-        app:layout_constraintBottom_toTopOf="@+id/SignupButton"
+        app:layout_constraintBottom_toTopOf="@+id/passResetButton"
         tools:layout_editor_absoluteX="18dp">
 
 
-
         <EditText
-            android:id="@+id/emailEditText2"
+            android:id="@+id/rpEmailEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
             android:drawableLeft="@drawable/ic_email_24dp"
             android:drawablePadding="12dp"
             android:ems="10"
-            android:hint="Email"
+            android:hint="Enter Registered Email"
             android:inputType="textEmailAddress"
             android:maxLines="1"
             android:padding="8dp"
@@ -55,80 +54,29 @@
             tools:layout_editor_absoluteY="202dp" />
 
         <View
-            android:layout_marginLeft="8dp"
             android:id="@+id/view"
             android:layout_width="match_parent"
             android:layout_height="1dp"
+            android:layout_marginLeft="8dp"
             android:background="#f9d7db"
             tools:layout_editor_absoluteX="26dp"
             tools:layout_editor_absoluteY="331dp" />
 
-        <EditText
-            android:id="@+id/PassEditText2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:background="@android:color/transparent"
-            android:drawableLeft="@drawable/ic_lock_white_24dp"
-            android:drawablePadding="12dp"
-            android:ems="10"
-            android:hint="Password"
-            android:inputType="textPassword"
-            android:maxLines="1"
-            android:padding="8dp"
-            android:textColorHint="#fff"
-            tools:layout_editor_absoluteX="26dp"
-            tools:layout_editor_absoluteY="275dp" />
-
-        <View
-            android:id="@+id/view2"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#f9d7db"
-            tools:layout_editor_absoluteX="26dp"
-            tools:layout_editor_absoluteY="266dp"
-            android:layout_marginLeft="8dp"/>
-
-        <EditText
-            android:id="@+id/rePassEditText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:background="@android:color/transparent"
-            android:drawableLeft="@drawable/ic_lock_white_24dp"
-            android:drawablePadding="12dp"
-            android:ems="10"
-            android:hint="Retype Password"
-            android:inputType="textPassword"
-            android:maxLines="1"
-            android:padding="8dp"
-            android:textColorHint="#fff"
-            tools:layout_editor_absoluteX="26dp"
-            tools:layout_editor_absoluteY="275dp" />
-
-        <View
-            android:id="@+id/view3"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#f9d7db"
-            tools:layout_editor_absoluteX="26dp"
-            tools:layout_editor_absoluteY="266dp"
-            android:layout_marginLeft="8dp"/>
 
     </LinearLayout>
 
     <Button
-        android:id="@+id/SignupButton"
+        android:id="@+id/passResetButton"
         style="@style/Base.TextAppearance.AppCompat.Body1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="32dp"
+        android:layout_marginBottom="100dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:background="@drawable/background_signup"
         android:clickable="true"
         android:padding="16dp"
-        android:text="Sign up"
+        android:text="Reset Password"
         android:textAllCaps="false"
         android:textColor="#fff"
         android:textSize="18sp"
