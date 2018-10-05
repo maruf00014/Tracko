@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_track_this"
+            android:icon="@drawable/track_this"
+            android:title="Track This Device" />
+        <item
+            android:id="@+id/nav_edit_profile"
+            android:icon="@drawable/ic_menu_manage"
+            android:title="Edit Profile" />
+        <item
+            android:id="@+id/nav_add_device"
+            android:icon="@drawable/plus_icon"
+            android:title="Add Device" />
+        <item
+            android:id="@+id/nav_remove_device"
+            android:icon="@drawable/icon_remove"
+            android:title="Remove Device" />
+        <item
+            android:id="@+id/nav_remove_all"
+            android:icon="@drawable/icon_remove_all"
+            android:title="Remove All Devices" />
+        <item
+            android:id="@+id/nav_log_out"
+            android:icon="@drawable/icon_logout"
+            android:title="Logout" />
+    </group>
+
+
+
+</menu>

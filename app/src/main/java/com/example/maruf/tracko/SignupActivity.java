@@ -16,12 +16,17 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class SignupActivity extends AppCompatActivity {
 
     private EditText emailEditText2;
     private EditText passEditText2;
-    private EditText repassEditText;
+    private EditText repassEditText, nameEditText;
     private FirebaseAuth firebaseAuth;
     private Button signUpButton;
 
@@ -30,6 +35,7 @@ public class SignupActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
 
+        nameEditText =  findViewById(R.id.nameEditText);
         emailEditText2 =  findViewById(R.id.emailEditText2);
         passEditText2 =  findViewById(R.id.PassEditText2);
         repassEditText =  findViewById(R.id.rePassEditText);
@@ -62,6 +68,14 @@ public class SignupActivity extends AppCompatActivity {
                                     progressDialog.dismiss();
 
                                     if (task.isSuccessful()) {
+
+                                        String userID = firebaseAuth.getCurrentUser().getUid();
+                                        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("Users").child(userID);
+
+                                        Map addUser = new HashMap();
+                                        addUser.put("Name",nameEditText.getText().toString());
+
+                                        databaseReference.setValue(addUser);
                                         Toast.makeText(SignupActivity.this, "Signup successful", Toast.LENGTH_LONG).show();
                                         Intent i = new Intent(SignupActivity.this, LoginActivity.class);
                                         startActivity(i);

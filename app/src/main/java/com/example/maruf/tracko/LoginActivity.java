@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -24,6 +25,7 @@ public class LoginActivity extends AppCompatActivity {
     private EditText passEditText;
     private TextView forgetPassTextView;
     private FirebaseAuth firebaseAuth;
+    private CheckBox checkBox;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,38 +34,52 @@ public class LoginActivity extends AppCompatActivity {
         logInButton = findViewById(R.id.loginButton);
         emailEditText = findViewById(R.id.emailEditText);
         passEditText = findViewById(R.id.PassEditText);
+        checkBox = findViewById(R.id.checkBox);
         firebaseAuth = FirebaseAuth.getInstance();
 
-        logInButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+        if(getSharedPreferences("PREFERENCE", MODE_PRIVATE).getBoolean("logedin",false))
+        {Intent i = new Intent(LoginActivity.this, MainActivity.class);
+            startActivity(i);
 
-                if (emailEditText.getText().toString().matches("") || passEditText.getText().toString().matches("")) {
-                    Toast.makeText(LoginActivity.this, "Please enter Email and Password!", Toast.LENGTH_SHORT).show();
+        }
 
-                } else{
-                    final ProgressDialog progressDialog = ProgressDialog.show(LoginActivity.this, "Please wait...", "Proccessing...", true);
-                    (firebaseAuth.signInWithEmailAndPassword(emailEditText.getText().toString(), passEditText.getText().toString()))
-                            .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                                @Override
-                                public void onComplete(@NonNull Task<AuthResult> task) {
-                                    progressDialog.dismiss();
+            logInButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
 
-                                    if (task.isSuccessful()) {
-                                        Toast.makeText(LoginActivity.this, "Login successful", Toast.LENGTH_LONG).show();
-                                        Intent i = new Intent(LoginActivity.this, MainActivity.class);
-                                        i.putExtra("Email", firebaseAuth.getCurrentUser().getEmail());
-                                        startActivity(i);
-                                    } else {
-                                        Log.e("ERROR", task.getException().toString());
-                                        Toast.makeText(LoginActivity.this, "Invalid Email or Password!", Toast.LENGTH_LONG).show();
+                    if (emailEditText.getText().toString().matches("") || passEditText.getText().toString().matches("")) {
+                        Toast.makeText(LoginActivity.this, "Please enter Email and Password!", Toast.LENGTH_SHORT).show();
 
+                    } else {
+
+                        getSharedPreferences("PREFERENCE", MODE_PRIVATE)
+                                .edit()
+                                .putBoolean("logedin", checkBox.isChecked())
+                                .putString("email",emailEditText.getText().toString())
+                                .putString("pass",passEditText.getText().toString())
+                                .apply();
+
+                        final ProgressDialog progressDialog = ProgressDialog.show(LoginActivity.this, "Please wait...", "Proccessing...", true);
+                        (firebaseAuth.signInWithEmailAndPassword(emailEditText.getText().toString(), passEditText.getText().toString()))
+                                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<AuthResult> task) {
+                                        progressDialog.dismiss();
+
+                                        if (task.isSuccessful()) {
+                                            Toast.makeText(LoginActivity.this, "Login successful", Toast.LENGTH_LONG).show();
+                                            Intent i = new Intent(LoginActivity.this, MainActivity.class);
+                                            startActivity(i);
+                                        } else {
+                                            Log.e("ERROR", task.getException().toString());
+                                            Toast.makeText(LoginActivity.this, "Invalid Email or Password!", Toast.LENGTH_LONG).show();
+
+                                        }
                                     }
-                                }
-                            });
+                                });
                     }
-            }
-        });
+                }
+            });
 
 
 

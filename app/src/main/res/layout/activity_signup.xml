@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/road_background"
+    android:background="@drawable/background_image"
     android:orientation="vertical"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="18dp"
@@ -36,7 +36,29 @@
         app:layout_constraintBottom_toTopOf="@+id/SignupButton"
         tools:layout_editor_absoluteX="18dp">
 
+        <EditText
+            android:id="@+id/nameEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:drawableLeft="@drawable/ic_person_white_24dp"
+            android:drawablePadding="12dp"
+            android:ems="10"
+            android:hint="Name"
+            android:inputType="textEmailAddress"
+            android:maxLines="1"
+            android:padding="8dp"
+            android:textColorHint="#fff"
+            android:textColor="#fff"
+             />
 
+        <View
+            android:layout_marginLeft="8dp"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#f9d7db"
+            tools:layout_editor_absoluteX="26dp"
+            tools:layout_editor_absoluteY="331dp" />
 
         <EditText
             android:id="@+id/emailEditText2"
@@ -51,6 +73,7 @@
             android:maxLines="1"
             android:padding="8dp"
             android:textColorHint="#fff"
+            android:textColor="#fff"
             tools:layout_editor_absoluteX="26dp"
             tools:layout_editor_absoluteY="202dp" />
 
@@ -77,6 +100,7 @@
             android:maxLines="1"
             android:padding="8dp"
             android:textColorHint="#fff"
+            android:textColor="#fff"
             tools:layout_editor_absoluteX="26dp"
             tools:layout_editor_absoluteY="275dp" />
 
@@ -103,6 +127,7 @@
             android:maxLines="1"
             android:padding="8dp"
             android:textColorHint="#fff"
+            android:textColor="#fff"
             tools:layout_editor_absoluteX="26dp"
             tools:layout_editor_absoluteY="275dp" />
 
