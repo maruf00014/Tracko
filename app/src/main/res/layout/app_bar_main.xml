@@ -18,7 +18,14 @@
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
             app:titleTextColor="@color/colorPrimaryDark"
-            app:titleTextAppearance="@style/Toolbar.TitleText"/>
+            app:titleTextAppearance="@style/Toolbar.TitleText">
+        <ImageView
+            android:id="@+id/speech_image"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginLeft="130dp"
+            android:src="@drawable/speech_icon" />
+    </android.support.v7.widget.Toolbar>
 
 
     </android.support.design.widget.AppBarLayout>

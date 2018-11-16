@@ -1,9 +1,12 @@
 package com.example.maruf.tracko;
 
-public class ListItem {
+import java.io.Serializable;
+
+public class ListItem implements Serializable {
     private String mName;
     private String mLocation;
     private String mId;
+
 
     public ListItem(String name,String location,String id){
 

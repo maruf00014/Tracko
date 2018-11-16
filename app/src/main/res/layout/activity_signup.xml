@@ -10,17 +10,17 @@
     android:paddingLeft="18dp"
     android:paddingRight="18dp"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:layout_editor_absoluteY="25dp">
+    tools:layout_editor_absoluteY="81dp">
 
 
     <ImageView
         android:id="@+id/imageView"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="120dp"
         android:layout_gravity="center_horizontal"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="8dp"
         android:padding="16dp"
         android:src="@drawable/tracko_icon"
         app:layout_constraintEnd_toEndOf="parent"
@@ -28,13 +28,59 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <LinearLayout
-        android:id="@+id/linearLayout"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="50dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/signup_profile_image"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:src="@drawable/profile_sample_image"
+            app:civ_border_color="#fff"
+            app:civ_border_width="4dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.479"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:layout_editor_absoluteY="136dp" />
+
+        <Button
+            android:id="@+id/add_photo_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="4dp"
+            android:text="Add Profile Photo"
+            android:textAllCaps="false"
+            app:layout_constraintBottom_toTopOf="@+id/linearLayout"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/profile_image" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_marginBottom="32dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toTopOf="@+id/SignupButton"
-        tools:layout_editor_absoluteX="18dp">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
 
         <EditText
             android:id="@+id/nameEditText"
@@ -48,14 +94,13 @@
             android:inputType="textEmailAddress"
             android:maxLines="1"
             android:padding="8dp"
-            android:textColorHint="#fff"
             android:textColor="#fff"
-             />
+            android:textColorHint="#fff" />
 
         <View
-            android:layout_marginLeft="8dp"
             android:layout_width="match_parent"
             android:layout_height="1dp"
+            android:layout_marginLeft="8dp"
             android:background="#f9d7db"
             tools:layout_editor_absoluteX="26dp"
             tools:layout_editor_absoluteY="331dp" />
@@ -72,16 +117,16 @@
             android:inputType="textEmailAddress"
             android:maxLines="1"
             android:padding="8dp"
-            android:textColorHint="#fff"
             android:textColor="#fff"
+            android:textColorHint="#fff"
             tools:layout_editor_absoluteX="26dp"
             tools:layout_editor_absoluteY="202dp" />
 
         <View
-            android:layout_marginLeft="8dp"
             android:id="@+id/view"
             android:layout_width="match_parent"
             android:layout_height="1dp"
+            android:layout_marginLeft="8dp"
             android:background="#f9d7db"
             tools:layout_editor_absoluteX="26dp"
             tools:layout_editor_absoluteY="331dp" />
@@ -99,8 +144,8 @@
             android:inputType="textPassword"
             android:maxLines="1"
             android:padding="8dp"
-            android:textColorHint="#fff"
             android:textColor="#fff"
+            android:textColorHint="#fff"
             tools:layout_editor_absoluteX="26dp"
             tools:layout_editor_absoluteY="275dp" />
 
@@ -108,10 +153,10 @@
             android:id="@+id/view2"
             android:layout_width="match_parent"
             android:layout_height="1dp"
+            android:layout_marginLeft="8dp"
             android:background="#f9d7db"
             tools:layout_editor_absoluteX="26dp"
-            tools:layout_editor_absoluteY="266dp"
-            android:layout_marginLeft="8dp"/>
+            tools:layout_editor_absoluteY="266dp" />
 
         <EditText
             android:id="@+id/rePassEditText"
@@ -126,8 +171,8 @@
             android:inputType="textPassword"
             android:maxLines="1"
             android:padding="8dp"
-            android:textColorHint="#fff"
             android:textColor="#fff"
+            android:textColorHint="#fff"
             tools:layout_editor_absoluteX="26dp"
             tools:layout_editor_absoluteY="275dp" />
 
@@ -135,19 +180,19 @@
             android:id="@+id/view3"
             android:layout_width="match_parent"
             android:layout_height="1dp"
+            android:layout_marginLeft="8dp"
             android:background="#f9d7db"
             tools:layout_editor_absoluteX="26dp"
-            tools:layout_editor_absoluteY="266dp"
-            android:layout_marginLeft="8dp"/>
+            tools:layout_editor_absoluteY="266dp" />
 
     </LinearLayout>
 
     <Button
         android:id="@+id/SignupButton"
         style="@style/Base.TextAppearance.AppCompat.Body1"
+        android:layout_height="0dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="32dp"
+        android:layout_marginBottom="16dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:background="@drawable/background_signup"

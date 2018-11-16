@@ -11,6 +11,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -36,14 +37,18 @@ public class GPSTracker extends Service implements LocationListener {
     double latitude;
     double longitude;
 
-    private static final long MIN_DISTANCE_FOR_UPDATES = 10;
-    private static final long MIN_TIME_BWN_UPDATES = 1000 * 20 * 1;
+    private static final long MIN_DISTANCE_FOR_UPDATES = 1;
+    private static final long MIN_TIME_BWN_UPDATES = 1000;
     protected LocationManager locationManager;
+
+
 
     public GPSTracker(Context context) {
         this.mContext = context;
         getLocation();
     }
+
+
 
     public Location getLocation() {
         try {
@@ -68,7 +73,19 @@ public class GPSTracker extends Service implements LocationListener {
                                     != PackageManager.PERMISSION_GRANTED) {
                         return null;
                     }
-                    locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME_BWN_UPDATES, MIN_DISTANCE_FOR_UPDATES, this);
+                    Criteria criteria = new Criteria();
+                    criteria.setAccuracy(Criteria.ACCURACY_FINE);
+                    criteria.setPowerRequirement(Criteria.POWER_HIGH);
+                    criteria.setAltitudeRequired(false);
+                    criteria.setSpeedRequired(true);
+                    criteria.setCostAllowed(true);
+                    criteria.setBearingRequired(false);
+
+                    //API level 9 and up
+                    criteria.setHorizontalAccuracy(Criteria.ACCURACY_HIGH);
+                    criteria.setVerticalAccuracy(Criteria.ACCURACY_HIGH);
+
+                    locationManager.requestLocationUpdates( MIN_TIME_BWN_UPDATES, MIN_DISTANCE_FOR_UPDATES,criteria, this,null);
 
                     if (locationManager != null) {
                         location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
@@ -83,7 +100,18 @@ public class GPSTracker extends Service implements LocationListener {
                 }
                 if (isGPSEnabled) {
                     if (location == null) {
-                        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME_BWN_UPDATES, MIN_DISTANCE_FOR_UPDATES, this);
+                        Criteria criteria = new Criteria();
+                        criteria.setAccuracy(Criteria.ACCURACY_FINE);
+                        criteria.setPowerRequirement(Criteria.POWER_HIGH);
+                        criteria.setAltitudeRequired(false);
+                        criteria.setSpeedRequired(true);
+                        criteria.setCostAllowed(true);
+                        criteria.setBearingRequired(false);
+
+                        //API level 9 and up
+                        criteria.setHorizontalAccuracy(Criteria.ACCURACY_HIGH);
+                        criteria.setVerticalAccuracy(Criteria.ACCURACY_HIGH);
+                        locationManager.requestLocationUpdates( MIN_TIME_BWN_UPDATES, MIN_DISTANCE_FOR_UPDATES,criteria, this,null);
 
                         if (locationManager != null) {
                             location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);

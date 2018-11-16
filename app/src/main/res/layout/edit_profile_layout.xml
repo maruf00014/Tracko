@@ -6,67 +6,80 @@
     android:background="@color/colorPrimaryDark"
     android:padding="8dp">
     <LinearLayout
-        android:id="@+id/add_dialog_linearlayout"
+        android:id="@+id/edit_dialog_linearlayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="40dp"
 
         android:orientation="vertical">
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Add Device"
+            android:text="Edit Profile"
             android:layout_marginBottom="20dp"
             android:textColor="#fff"
             android:textStyle="bold"
             android:textSize="25sp"/>
-
-    <EditText
-        android:id="@+id/dialog_deviceid"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
-        android:drawablePadding="12dp"
-        android:textCursorDrawable="@null"
-        android:ems="10"
-        android:hint="Device ID"
-        android:textColor="#fff"
-        android:maxLines="2"
-        android:padding="8dp"
-        android:textColorHint="#fff"
-        />
+        android:orientation="horizontal">
 
-    <View
-        android:id="@+id/view"
-        android:layout_width="match_parent"
-        android:layout_marginLeft="8dp"
-        android:layout_height="1dp"
-        android:background="#f9d7db"
-       />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Name:"
+            android:textStyle="bold"
+            android:textColor="#fff"
+            android:textSize="20sp"/>
+
+        <EditText
+            android:id="@+id/edp_dialog_nameEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:drawablePadding="12dp"
+            android:ems="10"
+            android:textColor="#fff"
+            android:maxLines="1"
+            android:padding="8dp"
+            android:textColorHint="#fff"
+            />
+        </LinearLayout>
+
+        <View
+            android:id="@+id/view"
+            android:layout_width="match_parent"
+            android:layout_marginLeft="8dp"
+            android:layout_height="1dp"
+            android:background="#f9d7db"
+            />
 
 
     </LinearLayout>
 
     <Button
-        android:id="@+id/add_button"
+        android:id="@+id/edp_edit_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
-        android:layout_alignTop="@+id/cancel_button"
+        android:layout_alignTop="@+id/edp_cancel_button"
         android:layout_marginEnd="32dp"
-        android:text="Add"
+        android:text="Edit"
         android:background="#fff"
         android:textAllCaps="false" />
 
     <Button
-        android:id="@+id/cancel_button"
+        android:id="@+id/edp_cancel_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:layout_marginStart="40dp"
+        android:layout_marginStart="32dp"
         android:layout_marginTop="140dp"
         android:background="#fff"
         android:text="Cancel"
-        android:textAllCaps="false" />
+        android:textAllCaps="false"/>
 </RelativeLayout>

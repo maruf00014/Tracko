@@ -68,8 +68,8 @@ public class TrackOtherActivity extends FragmentActivity implements OnMapReadyCa
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                location = dataSnapshot.child("Location").getValue(String.class);
-                name = dataSnapshot.child("Name").getValue(String.class);
+                location = dataSnapshot.child("location").getValue(String.class);
+                name = dataSnapshot.child("username").getValue(String.class);
                 if(location != null ) {
                     String[] seperator = location.split(",");
                     latitude = Double.parseDouble(seperator[0].trim());

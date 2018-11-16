@@ -2,8 +2,8 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/log_out"
+        android:id="@+id/shareDeviceId"
         android:orderInCategory="100"
-        android:title="Logout"
+        android:title="Share Device ID"
         app:showAsAction="never" />
 </menu>

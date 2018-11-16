@@ -1,11 +1,15 @@
 package com.example.maruf.tracko;
 
+import android.content.Intent;
+import android.location.LocationManager;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -39,6 +43,9 @@ public class TrackThisActivity extends FragmentActivity implements OnMapReadyCal
     private Double logitude;
     private String uid;
     private LatLng latLng;
+    private ImageButton startButton;
+    private ImageButton stopButton;
+
 
     GPSTracker gps;
     private Timer timerExecutor = new Timer();
@@ -49,8 +56,14 @@ public class TrackThisActivity extends FragmentActivity implements OnMapReadyCal
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.map_layout);
+        setContentView(R.layout.track_this_layout);
 
+//Check whether GPS tracking is enabled//
+
+        LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
+        if (!lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            finish();
+        }
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
@@ -62,17 +75,61 @@ public class TrackThisActivity extends FragmentActivity implements OnMapReadyCal
         firebaseDatabase = FirebaseDatabase.getInstance();
         databaseReference = firebaseDatabase.getReference().child("Users").child(uid);
 
+        SupportMapFragment trackThisFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.trackthisfragment);
 
-        startTracking();
-        timerExecutor = new Timer();
-        startBackgroundPerformExecutor();
-
-
+        trackThisFragment.getMapAsync(this);
 
 
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.mapfragment);
-        mapFragment.getMapAsync(this);
+        startButton = findViewById(R.id.start_button);
+        stopButton = findViewById(R.id.stop_button);
+
+        if(!getSharedPreferences("PREFERENCE", MODE_PRIVATE).getBoolean("isTracking",false))
+        {
+            stopButton.setVisibility(View.INVISIBLE);
+        }else {
+            startButton.setVisibility(View.INVISIBLE);
+        }
+
+
+        startButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getSharedPreferences("PREFERENCE", MODE_PRIVATE)
+                        .edit()
+                        .putBoolean("isTracking", true)
+                        .apply();
+                startButton.setVisibility(View.INVISIBLE);
+                stopButton.setVisibility(View.VISIBLE);
+                startTracking();
+                timerExecutor = new Timer();
+                startBackgroundPerformExecutor();
+
+            }
+        });
+
+        stopButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                doAsynchronousTaskExecutor.cancel();
+                timerExecutor.cancel();
+                getSharedPreferences("PREFERENCE", MODE_PRIVATE)
+                        .edit()
+                        .putBoolean("isTracking", false)
+                        .apply();
+                startButton.setVisibility(View.VISIBLE);
+                stopButton.setVisibility(View.INVISIBLE);
+
+
+            }
+        });
+
+
+
+
+
+
+
 
     }
 
@@ -89,8 +146,8 @@ public class TrackThisActivity extends FragmentActivity implements OnMapReadyCal
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                location = dataSnapshot.child("Location").getValue(String.class);
-                name = dataSnapshot.child("Name").getValue(String.class);
+                location = dataSnapshot.child("location").getValue(String.class);
+                name = dataSnapshot.child("username").getValue(String.class);
                 if(location != null ) {
                     String[] seperator = location.split(",");
                     latitude = Double.parseDouble(seperator[0].trim());
@@ -124,12 +181,25 @@ public class TrackThisActivity extends FragmentActivity implements OnMapReadyCal
     }
 
 
+    @Override
+    public void onBackPressed() {
 
+        Intent intent = new Intent(TrackThisActivity.this,MainActivity.class);
+        startActivity(intent);
+    }
 
     @Override
     protected void onDestroy() {
-        doAsynchronousTaskExecutor.cancel();
-        timerExecutor.cancel();
+
+        if(getSharedPreferences("PREFERENCE", MODE_PRIVATE).getBoolean("isTracking",false))
+        {
+            doAsynchronousTaskExecutor.cancel();
+            timerExecutor.cancel();
+            getSharedPreferences("PREFERENCE", MODE_PRIVATE)
+                    .edit()
+                    .putBoolean("isTracking", false)
+                    .apply();
+        }
         getSharedPreferences("PREFERENCE", MODE_PRIVATE)
                 .edit()
                 .putBoolean("dialog", true)
@@ -145,7 +215,7 @@ public class TrackThisActivity extends FragmentActivity implements OnMapReadyCal
             double latitude = gps.getLatitude();
             double longitude = gps.getLongitude();
 
-            databaseReference.child("Location").setValue(latitude+","+longitude);
+            databaseReference.child("location").setValue(latitude+","+longitude);
         }else {
             gps.showSettingsAlert();
         }
@@ -179,6 +249,6 @@ public class TrackThisActivity extends FragmentActivity implements OnMapReadyCal
                 });
             }
         };
-        timerExecutor.schedule(doAsynchronousTaskExecutor, 0, 15000);
+        timerExecutor.schedule(doAsynchronousTaskExecutor, 0, 10000);
     }
 }
