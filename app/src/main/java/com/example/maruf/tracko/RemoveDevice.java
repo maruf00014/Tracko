@@ -31,7 +31,7 @@ public class RemoveDevice extends AppCompatActivity {
 
         items = (ArrayList<ListItem>) getIntent().getSerializableExtra("items");
         uid = getIntent().getStringExtra("uid");
-        databaseReference = FirebaseDatabase.getInstance().getReference().child("Users").child(uid).child("Device List");
+        databaseReference = FirebaseDatabase.getInstance().getReference().child("Users").child(uid).child("deviceList");
         removeListAdapter = new RemoveListAdapter(this,items);
         listView = findViewById(R.id.removelistView);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {

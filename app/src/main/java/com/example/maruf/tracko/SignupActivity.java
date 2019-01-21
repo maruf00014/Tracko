@@ -137,13 +137,13 @@ public class SignupActivity extends AppCompatActivity {
         finish();
     }
 
-    private void openImage() {
+    public void openImage() {
         Intent intent = new Intent();
         intent.setType("image/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);
         startActivityForResult(intent, IMAGE_REQUEST);
     }
-    private String getFileExtension(Uri uri){
+    public String getFileExtension(Uri uri){
         ContentResolver contentResolver = getApplicationContext().getContentResolver();
         MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();
         return mimeTypeMap.getExtensionFromMimeType(contentResolver.getType(uri));
@@ -179,7 +179,9 @@ public class SignupActivity extends AppCompatActivity {
                         addUser.put("imageURL", imageURL);
                         addUser.put("status", "offline");
                         addUser.put("search", nameEditText.getText().toString().toLowerCase());
-                        addUser.put("location", "Not share yet");
+                        addUser.put("location", "0,0");
+                        addUser.put("sharing", "no");
+                        addUser.put("email", emailEditText2.getText());
                         databaseReference.setValue(addUser);
                         progressDialog.dismiss();
                         Toast.makeText(SignupActivity.this, "Signup successful", Toast.LENGTH_LONG).show();
@@ -194,7 +196,9 @@ public class SignupActivity extends AppCompatActivity {
                         addUser.put("imageURL", "default");
                         addUser.put("status", "offline");
                         addUser.put("search", nameEditText.getText().toString().toLowerCase());
-                        addUser.put("location", "Not share yet");
+                        addUser.put("location", "0,0");
+                        addUser.put("sharing", "no");
+                        addUser.put("email", emailEditText2.getText());
                         databaseReference.setValue(addUser);
                         progressDialog.dismiss();
                         Toast.makeText(SignupActivity.this, "Signup successful", Toast.LENGTH_LONG).show();
@@ -210,7 +214,9 @@ public class SignupActivity extends AppCompatActivity {
             Map addUser = new HashMap();
             addUser.put("Name",nameEditText.getText().toString());
             addUser.put("imageURL", "Default");
-            addUser.put("location", "Not share yet");
+            addUser.put("location", "0,0");
+            addUser.put("sharing", "no");
+            addUser.put("email", emailEditText2.getText());
             databaseReference.setValue(addUser);
             progressDialog.dismiss();
             Toast.makeText(SignupActivity.this, "Signup successful", Toast.LENGTH_LONG).show();
@@ -364,7 +370,7 @@ public class SignupActivity extends AppCompatActivity {
 
     }
 
-    private String getRealPathFromURI(Uri contentUri) {
+    public String getRealPathFromURI(Uri contentUri) {
         Cursor cursor = getContentResolver().query(contentUri, null, null, null, null);
         if (cursor == null) {
             return contentUri.getPath();

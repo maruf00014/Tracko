@@ -57,6 +57,7 @@ public class TrackOtherActivity extends FragmentActivity implements OnMapReadyCa
     @Override
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
+        //map.setMapType(GoogleMap.MAP_TYPE_HYBRID);
         getData();
 
 
@@ -95,7 +96,9 @@ public class TrackOtherActivity extends FragmentActivity implements OnMapReadyCa
     private void updateMarker(){
 
         map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-        map.animateCamera(CameraUpdateFactory.zoomTo(15.0f));
+        if(marker==null) {
+            map.animateCamera(CameraUpdateFactory.zoomTo(17.0f));
+        }
         marker = map.addMarker(new MarkerOptions().position(latLng).title(name));
         // .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_icon)));
         marker.showInfoWindow();

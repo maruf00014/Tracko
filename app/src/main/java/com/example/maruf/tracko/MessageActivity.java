@@ -180,15 +180,19 @@ public class MessageActivity extends AppCompatActivity {
 
 
         // add user to chat fragment
-        final DatabaseReference chatRef = FirebaseDatabase.getInstance().getReference("Chatlist")
-                .child(fuser.getUid())
-                .child(userid);
+        final DatabaseReference chatRef = FirebaseDatabase.getInstance().getReference("Chatlist");
+
 
         chatRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (!dataSnapshot.exists()){
-                    chatRef.child("id").setValue(userid);
+                if (!dataSnapshot.child(fuser.getUid()).child(userid).exists()){
+                    chatRef.child(fuser.getUid()).child(userid)
+                            .child("id").setValue(userid);
+                }
+                if (!dataSnapshot.child(userid).child(fuser.getUid()).exists()){
+                    chatRef.child(userid).child(fuser.getUid())
+                            .child("id").setValue(fuser.getUid());
                 }
             }
 

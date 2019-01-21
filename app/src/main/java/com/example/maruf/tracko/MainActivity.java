@@ -4,14 +4,25 @@ package com.example.maruf.tracko;
 
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Matrix;
+import android.graphics.Paint;
+import android.media.ExifInterface;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
@@ -35,6 +46,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
+import android.webkit.MimeTypeMap;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -54,6 +66,7 @@ import com.example.maruf.tracko.Notifications.Data;
 import com.example.maruf.tracko.Notifications.MyResponse;
 import com.example.maruf.tracko.Notifications.Sender;
 import com.example.maruf.tracko.Notifications.Token;
+import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -65,40 +78,53 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.StorageTask;
+import com.google.firebase.storage.UploadTask;
+
 import android.Manifest;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
+
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-import static java.security.AccessController.getContext;
 
 public class MainActivity extends AppCompatActivity
 implements NavigationView.OnNavigationItemSelectedListener {
 
-    private TextView navEmailTextView,navNameTextView;
+    private TextView navEmailTextView,navNameTextView,navIDTextView;
     public String uid;
     String userName;
     private FirebaseAuth firebaseAuth;
-    private ProgressBar progressBar;
     private DatabaseReference databaseReference;
     ArrayList<ListItem> items;
     ListAdapter listAdapter;
     ListView listView;
-    String name,location,TAG;
-    CircleImageView profileImage;
+    String name,location,imageURL,userImageURL,editImageURL,TAG;
+    CircleImageView profileImage,editProfileImage;
     APIService apiService;
+    ProgressDialog progressDialog;
+    StorageReference storageReference;
+    private static final int IMAGE_REQUEST = 1;
+    private Uri imageUri;
+    private StorageTask uploadTask;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar =  findViewById(R.id.toolbar);
+        toolbar.setTitle("");
         setSupportActionBar(toolbar);
         TAG = "Speech";
         ImageView speechImage = toolbar.findViewById(R.id.speech_image);
@@ -106,14 +132,18 @@ implements NavigationView.OnNavigationItemSelectedListener {
         speechImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+               // Toast.makeText(MainActivity.this, FirebaseAuth.getInstance().getCurrentUser().getUid(), Toast.LENGTH_LONG).show();
+
                 trackDeviceBySpeech();
             }
         });
+       progressDialog = ProgressDialog.show(MainActivity.this, "", "Loading...", true);
 
         NavigationView navigationView = findViewById(R.id.nav_view);
         View headerView = navigationView.getHeaderView(0);
         navEmailTextView =  headerView.findViewById(R.id.navEmailTextview);
         navNameTextView = headerView.findViewById(R.id.navNameTextView);
+        navIDTextView = headerView.findViewById(R.id.navIDTextview);
         profileImage = headerView.findViewById(R.id.profile_image);
 
        /* if(!isNetworkAvialable(this)) {
@@ -175,7 +205,7 @@ implements NavigationView.OnNavigationItemSelectedListener {
             String email = user.getEmail();
             uid = user.getUid();
             navEmailTextView.setText(email);
-
+            navIDTextView.setText(uid);
             databaseReference = FirebaseDatabase.getInstance().getReference();
             databaseReference.child("Users").child(uid).addValueEventListener(new ValueEventListener() {
 
@@ -183,11 +213,11 @@ implements NavigationView.OnNavigationItemSelectedListener {
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     userName = dataSnapshot.child("username").getValue(String.class);
                     navNameTextView.setText(userName);
-                    String imageURL = dataSnapshot.child("imageURL").getValue(String.class);
-                    if (imageURL.equals("default")){
+                    userImageURL = dataSnapshot.child("imageURL").getValue(String.class);
+                    if (userImageURL.equals("default")){
                         profileImage.setImageResource(R.drawable.profile_sample_image);
                     } else {
-                        Glide.with(getApplicationContext()).load(imageURL).into(profileImage);
+                        Glide.with(getApplicationContext()).load(userImageURL).into(profileImage);
                     }
 
 
@@ -237,11 +267,14 @@ implements NavigationView.OnNavigationItemSelectedListener {
                     //Toast.makeText(MainActivity.this, id, Toast.LENGTH_LONG).show();
                     name = dataSnapshot.child(id).child("username").getValue(String.class);
                     location = dataSnapshot.child(id).child("location").getValue(String.class);
-                    items.add(new ListItem(name,location,id));
+                    imageURL = dataSnapshot.child(id).child("imageURL").getValue(String.class);
+                   String sharing = dataSnapshot.child(id).child("sharing").getValue(String.class);
+                   String email = dataSnapshot.child(id).child("email").getValue(String.class);
+                    items.add(new ListItem(name,location,id,imageURL,sharing,email));
 
                 }
                 listView.setAdapter(listAdapter);
-
+                progressDialog.dismiss();
                // Toast.makeText(MainActivity.this, "Finish", Toast.LENGTH_LONG).show();
 
             }
@@ -251,7 +284,7 @@ implements NavigationView.OnNavigationItemSelectedListener {
                 throw databaseError.toException();
             }
         });
-        if(getSharedPreferences("PREFERENCE", MODE_PRIVATE).getBoolean("dialog",true)) {
+        /*if(getSharedPreferences("PREFERENCE", MODE_PRIVATE).getBoolean("dialog",true)) {
             final Dialog dialog = new Dialog(MainActivity.this);
             dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
             dialog.setCancelable(false);
@@ -285,7 +318,7 @@ implements NavigationView.OnNavigationItemSelectedListener {
             dialog.show();
 
 
-        }
+        }*/
 
 
 
@@ -371,7 +404,7 @@ implements NavigationView.OnNavigationItemSelectedListener {
         int id = item.getItemId();
 
         if (id == R.id.nav_track_this) {
-            Intent i = new Intent(MainActivity.this, TrackThisActivity.class);
+            Intent i = new Intent(MainActivity.this, Trackthis.class);
             startActivity(i);
 
         } else if (id == R.id.nav_edit_profile) {
@@ -394,10 +427,11 @@ implements NavigationView.OnNavigationItemSelectedListener {
             Intent intent = new Intent(MainActivity.this,MessageMainActivity.class);
             startActivity(intent);
         }  else if (id == R.id.nav_help_alert) {
-                sendHelpAlert();
-            Toast.makeText(MainActivity.this, "Send!", Toast.LENGTH_SHORT).show();
-
-        } else if (id == R.id.nav_log_out) {
+            Intent intent = new Intent(MainActivity.this,HelpAlert.class);
+            intent.putExtra("items",items);
+            intent.putExtra("uid",uid);
+            startActivity(intent);
+           } else if (id == R.id.nav_log_out) {
 
            logOut();
         }
@@ -424,7 +458,7 @@ implements NavigationView.OnNavigationItemSelectedListener {
                             for (DataSnapshot deviceListSnapshot: dataSnapshot.getChildren()) {
                                 String receiver = deviceListSnapshot.getValue(String.class);
 
-                                sendNotifiaction(receiver,userName);
+                                sendNotifiaction(receiver,userName,"help");
 
                             }
 
@@ -437,7 +471,11 @@ implements NavigationView.OnNavigationItemSelectedListener {
 
                     }
                 });
+                Toast.makeText(MainActivity.this, "Send!", Toast.LENGTH_SHORT).show();
+
+
             }
+
         });
 
         alertdialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -452,7 +490,7 @@ implements NavigationView.OnNavigationItemSelectedListener {
         alertdialog.show();
     }
 
-    private void sendNotifiaction(final String receiver, final String username){
+    public void sendNotifiaction(final String receiver, final String username, final String type){
         DatabaseReference tokens = FirebaseDatabase.getInstance().getReference("Tokens");
         Query query = tokens.orderByKey().equalTo(receiver);
         query.addValueEventListener(new ValueEventListener() {
@@ -460,8 +498,15 @@ implements NavigationView.OnNavigationItemSelectedListener {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()){
                     Token token = snapshot.getValue(Token.class);
-                    Data data = new Data(uid, R.mipmap.ic_launcher, username+" need help!", "Help Alert!",
-                            receiver);
+                    Data data;
+                    if(type.equals("help")){
+                        data = new Data(uid, R.mipmap.ic_launcher, username+" need help!", "Help Alert!",
+                                receiver);
+                    } else{
+                        data = new Data(uid, R.mipmap.ic_launcher, username+" added you!", "Adding Alert!",
+                                receiver);
+                    }
+
 
                     Sender sender = new Sender(data, token.getToken());
 
@@ -471,7 +516,7 @@ implements NavigationView.OnNavigationItemSelectedListener {
                                 public void onResponse(Call<MyResponse> call, Response<MyResponse> response) {
                                     if (response.code() == 200){
                                         if (response.body().success != 1){
-                                            Toast.makeText(MainActivity.this, "Failed!", Toast.LENGTH_SHORT).show();
+                                           // Toast.makeText(MainActivity.this, "Failed!", Toast.LENGTH_SHORT).show();
                                         }
                                     }
                                 }
@@ -493,13 +538,10 @@ implements NavigationView.OnNavigationItemSelectedListener {
 
 
     @Override
-    protected void onDestroy() {
+    protected void onPause(){
+        sharing("no");
+        super.onPause();
 
-        super.onDestroy();
-        getSharedPreferences("PREFERENCE", MODE_PRIVATE)
-                .edit()
-                .putBoolean("dialog", true)
-                .apply();
 
 
     }
@@ -515,11 +557,17 @@ implements NavigationView.OnNavigationItemSelectedListener {
             public void onClick(View view) {
 
                 String deviceID = deviceIdEditText.getText().toString().trim();
+                if(!deviceID.equals("") && deviceID.length() == 28) {
+                    FirebaseDatabase.getInstance().getReference().child("Users").child(uid).child("deviceList").child(deviceID).setValue(deviceID);
+                    adddialog.dismiss();
+                    sendNotifiaction(deviceID,userName,"add");
+                    Toast.makeText(MainActivity.this, "Successfully send!", Toast.LENGTH_LONG).show();
+                }
+                else{
+                    adddialog.dismiss();
+                    Toast.makeText(MainActivity.this, "Please enter a valid ID!", Toast.LENGTH_LONG).show();
 
-                FirebaseDatabase.getInstance().getReference().child("Users").child(uid).child("deviceList").child(deviceID).setValue(deviceID);
-                adddialog.dismiss();
-                Toast.makeText(MainActivity.this, "Successfully device added!", Toast.LENGTH_LONG).show();
-
+                }
                 }
 
         });
@@ -543,6 +591,7 @@ implements NavigationView.OnNavigationItemSelectedListener {
                 .putString("email","")
                 .putString("pass","")
                 .apply();
+         sharing("no");
         Intent i = new Intent(MainActivity.this, LoginActivity.class);
         startActivity(i);
 
@@ -583,6 +632,20 @@ implements NavigationView.OnNavigationItemSelectedListener {
         final EditText nameEt = editdialog.findViewById(R.id.edp_dialog_nameEditText);
         Button editButton = editdialog.findViewById(R.id.edp_edit_button);
         nameEt.setText(userName);
+        editProfileImage = editdialog.findViewById(R.id.edit_profile_image);
+        if (userImageURL.equals("default")){
+            editProfileImage.setImageResource(R.drawable.profile_sample_image);
+        } else {
+            Glide.with(getApplicationContext()).load(userImageURL).into(editProfileImage);
+        }
+
+        editProfileImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openImage();
+            }
+        });
+
         editButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -593,12 +656,7 @@ implements NavigationView.OnNavigationItemSelectedListener {
                 } else {
 
                     editdialog.dismiss();
-                    final ProgressDialog progressDialog = ProgressDialog.show(MainActivity.this, "Please wait...", "Adding device...", true);
-
-                    databaseReference = FirebaseDatabase.getInstance().getReference().child("Users").child(uid).child("username");
-                    databaseReference.setValue(nameEt.getText().toString());
-                    progressDialog.dismiss();
-                    Toast.makeText(MainActivity.this, "Profile Edit successful!", Toast.LENGTH_LONG).show();
+                    storeData(nameEt.getText().toString());
 
 
                 }
@@ -708,6 +766,247 @@ implements NavigationView.OnNavigationItemSelectedListener {
 
 
         }
+    public void openImage() {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(intent, IMAGE_REQUEST);
+    }
+    public String getFileExtension(Uri uri){
+        ContentResolver contentResolver = getApplicationContext().getContentResolver();
+        MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();
+        return mimeTypeMap.getExtensionFromMimeType(contentResolver.getType(uri));
+    }
+
+    private void storeData(final String editedName){
+      final ProgressDialog  dataprogressDialog = ProgressDialog.show(MainActivity.this, "Please wait...", "Profile updating...", true);
+
+        databaseReference = FirebaseDatabase.getInstance().getReference().child("Users").child(uid);
+
+        editImageURL = "default";
+        if (imageUri != null){
+            storageReference = FirebaseStorage.getInstance().getReference("uploads");
+
+            final  StorageReference fileReference = storageReference.child(System.currentTimeMillis()
+                    +"."+getFileExtension(imageUri));
+
+            uploadTask = fileReference.putFile(compressImage(imageUri));
+            uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+                @Override
+                public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                    if (!task.isSuccessful()){
+                        throw  task.getException();
+                    }
+
+                    return  fileReference.getDownloadUrl();
+                }
+            }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                @Override
+                public void onComplete(@NonNull Task<Uri> task) {
+                    if (task.isSuccessful()){
+                        Uri downloadUri = task.getResult();
+                        editImageURL = downloadUri.toString();
+
+                        databaseReference.child("username").setValue(editedName);
+                        databaseReference.child("imageURL").setValue(editImageURL);
+                        dataprogressDialog.dismiss();
+                        Toast.makeText(MainActivity.this, "Profile Edit successful!", Toast.LENGTH_LONG).show();
+
+
+                    } else {
+                        Toast.makeText(MainActivity.this, "Failed to upload profile photo!", Toast.LENGTH_LONG).show();
+                        dataprogressDialog.dismiss();
+
+                    }
+
+                }
+            });
+        }
+
+        else {
+
+            databaseReference.child("username").setValue(editedName);
+            dataprogressDialog.dismiss();
+            Toast.makeText(MainActivity.this, "Profile Edit successful!", Toast.LENGTH_LONG).show();
+
+
+
+        }
+
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == IMAGE_REQUEST && resultCode == RESULT_OK
+                && data != null && data.getData() != null){
+            imageUri = data.getData();
+            editProfileImage.setImageURI(null);
+            editProfileImage.setImageURI(imageUri);
+
+        }
+    }
+
+
+    public Uri compressImage(Uri imageUri) {
+
+        String filePath = getRealPathFromURI(imageUri);
+        Bitmap scaledBitmap = null;
+
+        BitmapFactory.Options options = new BitmapFactory.Options();
+
+        //      by setting this field as true, the actual bitmap pixels are not loaded in the memory. Just the bounds are loaded. If
+        //      you try the use the bitmap here, you will get null.
+        options.inJustDecodeBounds = true;
+        Bitmap bmp = BitmapFactory.decodeFile(filePath, options);
+
+        int actualHeight = options.outHeight;
+        int actualWidth = options.outWidth;
+
+        //      max Height and width values of the compressed image is taken as 816x612
+
+        float maxHeight = 200.0f;
+        float maxWidth = 200.0f;
+        float imgRatio = actualWidth / actualHeight;
+        float maxRatio = maxWidth / maxHeight;
+
+        //      width and height values are set maintaining the aspect ratio of the image
+
+        if (actualHeight > maxHeight || actualWidth > maxWidth) {
+            if (imgRatio < maxRatio) {
+                imgRatio = maxHeight / actualHeight;
+                actualWidth = (int) (imgRatio * actualWidth);
+                actualHeight = (int) maxHeight;
+            } else if (imgRatio > maxRatio) {
+                imgRatio = maxWidth / actualWidth;
+                actualHeight = (int) (imgRatio * actualHeight);
+                actualWidth = (int) maxWidth;
+            } else {
+                actualHeight = (int) maxHeight;
+                actualWidth = (int) maxWidth;
+
+            }
+        }
+
+        //      setting inSampleSize value allows to load a scaled down version of the original image
+
+        options.inSampleSize = calculateInSampleSize(options, actualWidth, actualHeight);
+
+        //      inJustDecodeBounds set to false to load the actual bitmap
+        options.inJustDecodeBounds = false;
+
+        //      this options allow android to claim the bitmap memory if it runs low on memory
+        options.inPurgeable = true;
+        options.inInputShareable = true;
+        options.inTempStorage = new byte[16 * 1024];
+
+        try {
+            //          load the bitmap from its path
+            bmp = BitmapFactory.decodeFile(filePath, options);
+        } catch (OutOfMemoryError exception) {
+            exception.printStackTrace();
+
+        }
+        try {
+            scaledBitmap = Bitmap.createBitmap(actualWidth, actualHeight, Bitmap.Config.ARGB_8888);
+        } catch (OutOfMemoryError exception) {
+            exception.printStackTrace();
+        }
+
+        float ratioX = actualWidth / (float) options.outWidth;
+        float ratioY = actualHeight / (float) options.outHeight;
+        float middleX = actualWidth / 2.0f;
+        float middleY = actualHeight / 2.0f;
+
+        Matrix scaleMatrix = new Matrix();
+        scaleMatrix.setScale(ratioX, ratioY, middleX, middleY);
+
+        Canvas canvas = new Canvas(scaledBitmap);
+        canvas.setMatrix(scaleMatrix);
+        canvas.drawBitmap(bmp, middleX - bmp.getWidth() / 2, middleY - bmp.getHeight() / 2, new Paint(Paint.FILTER_BITMAP_FLAG));
+
+        //      check the rotation of the image and display it properly
+        ExifInterface exif;
+        try {
+            exif = new ExifInterface(filePath);
+
+            int orientation = exif.getAttributeInt(
+                    ExifInterface.TAG_ORIENTATION, 0);
+            Log.d("EXIF", "Exif: " + orientation);
+            Matrix matrix = new Matrix();
+            if (orientation == 6) {
+                matrix.postRotate(90);
+                Log.d("EXIF", "Exif: " + orientation);
+            } else if (orientation == 3) {
+                matrix.postRotate(180);
+                Log.d("EXIF", "Exif: " + orientation);
+            } else if (orientation == 8) {
+                matrix.postRotate(270);
+                Log.d("EXIF", "Exif: " + orientation);
+            }
+            scaledBitmap = Bitmap.createBitmap(scaledBitmap, 0, 0,
+                    scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix,
+                    true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        FileOutputStream out = null;
+        String filename = getFilename();
+        try {
+            out = new FileOutputStream(filename);
+
+            //          write the compressed bitmap at the destination specified by filename.
+            scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 80, out);
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        return Uri.fromFile(new File(filename));
+
+    }
+
+    public String getFilename() {
+        File file = new File(Environment.getExternalStorageDirectory().getPath(), "MyFolder/Images");
+        if (!file.exists()) {
+            file.mkdirs();
+        }
+        String uriSting = (file.getAbsolutePath() + "/" + System.currentTimeMillis() + ".jpg");
+        return uriSting;
+
+    }
+
+    public String getRealPathFromURI(Uri contentUri) {
+        Cursor cursor = getContentResolver().query(contentUri, null, null, null, null);
+        if (cursor == null) {
+            return contentUri.getPath();
+        } else {
+            cursor.moveToFirst();
+            int index = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
+            return cursor.getString(index);
+        }
+    }
+
+    public int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
+
+        if (height > reqHeight || width > reqWidth) {
+            final int heightRatio = Math.round((float) height / (float) reqHeight);
+            final int widthRatio = Math.round((float) width / (float) reqWidth);
+            inSampleSize = heightRatio < widthRatio ? heightRatio : widthRatio;
+        }
+        final float totalPixels = width * height;
+        final float totalReqPixelsCap = reqWidth * reqHeight * 2;
+        while (totalPixels / (inSampleSize * inSampleSize) > totalReqPixelsCap) {
+            inSampleSize++;
+        }
+
+        return inSampleSize;
+    }
     private void checkPermission() {
 
         if (ContextCompat.checkSelfPermission(this,
@@ -742,4 +1041,17 @@ implements NavigationView.OnNavigationItemSelectedListener {
         return false;
     }
 
+    private void sharing(String status){
+        databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(uid);
+        databaseReference.child("sharing").setValue(status);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        sharing("yes");
+    }
+
+
 }
+

@@ -16,15 +16,24 @@
             app:theme="@style/ThemeToolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            app:titleTextColor="@color/colorPrimaryDark"
-            app:titleTextAppearance="@style/Toolbar.TitleText">
+            android:background="?attr/colorPrimary">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/app_name"
+                android:textColor="@color/colorPrimaryDark"
+                style="@style/Toolbar.TitleText"/>
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
         <ImageView
             android:id="@+id/speech_image"
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:layout_marginLeft="130dp"
+            android:layout_alignParentEnd="true"
             android:src="@drawable/speech_icon" />
+            </RelativeLayout>
     </android.support.v7.widget.Toolbar>
 
 

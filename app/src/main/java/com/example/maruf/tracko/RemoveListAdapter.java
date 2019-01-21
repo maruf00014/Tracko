@@ -7,7 +7,11 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+
 import java.util.ArrayList;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class RemoveListAdapter extends ArrayAdapter<ListItem> {
 
@@ -27,11 +31,22 @@ public class RemoveListAdapter extends ArrayAdapter<ListItem> {
 
         ListItem currentItem = getItem(position);
 
+        CircleImageView circleImageView = listItemView.findViewById(R.id.remove_item_profile_image);
+        if (currentItem.getmImageURL().equals("default")){
+            circleImageView.setImageResource(R.drawable.profile_sample_image);
+        } else {
+            Glide.with(getContext()).load(currentItem.getmImageURL()).into(circleImageView);
+        }
+
+
         TextView name = listItemView.findViewById(R.id.removelistItemNameTextView);
         name.setText(currentItem.getmName());
 
         TextView location = listItemView.findViewById(R.id.removelistItemLocationTextView);
         location.setText(currentItem.getmLocation());
+
+        TextView email = listItemView.findViewById(R.id.removelistItemEmailTextView);
+        email.setText(currentItem.getMemail());
 
         return listItemView;
 
